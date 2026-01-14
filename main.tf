@@ -1,32 +1,21 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 3.0"
-    }
-  }
-
-  backend "azurerm" {
-    resource_group_name  = "pratham_rg"
-    storage_account_name = "prathamsstorage"
-    container_name       = "terraform-state"
-    key                  = "jenkins-demo.tfstate"
-  }
-}
-
 provider "azurerm" {
   features {}
-
 }
 
-resource "azurerm_resource_group" "pratham_rg" {
-  name     = "pratham-JenkinsTerraformRG"
-  location = "Central US"
+resource "azurerm_resource_group" "network_rg" {
+  name     = "amk-network-dev-rg"   # ✅ correct
+  location = "East US"
 }
 
-resource "azurerm_virtual_network" "pratham_vnet" {
-  name                = "pratham-JenkinsVNet"
-  address_space       = ["10.10.0.0/16"]
-  location            = azurerm_resource_group.pratham_rg.location
-  resource_group_name = azurerm_resource_group.pratham_rg.name
+resource "azurerm_virtual_network" "vnet" {
+  name                = "amk-vnet-dev"   # ✅ correct
+  address_space       = ["10.0.0.0/16"]
+  location            = azurerm_resource_group.network_rg.location
+  resource_group_name = azurerm_resource_group.network_rg.name
+}
+resource "azurerm_subnet" "subnet1" {
+  name                 = "amk-subnet-dev"
+  resource_group_name  = azurerm_resource_group.network_rg.name
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  address_prefixes     = ["10.0.1.0/24"]
 }
